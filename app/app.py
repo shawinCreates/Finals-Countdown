@@ -10,37 +10,54 @@ scaler = joblib.load('app/minmaxscaler.pkl')
 # Page configuration
 st.set_page_config(
     page_title="Finals Countdown 🎓",
-    page_icon="📘",
-    layout="wide",
+    page_icon="app/logo.png",
+    layout="centered",
 )
+# Inject custom CSS
+with open("app/styles.css") as f:
+    st.markdown(f"<style>{f.read()}</style>", unsafe_allow_html=True)
 
-# --- Title ---
-st.markdown("<h1 style='text-align: center; color: #1f4e79;'>🎓 Finals Countdown</h1>", unsafe_allow_html=True)
-st.markdown("<h4 style='text-align: center; color: #555;'>Predict Your Score Before It Predicts Your Future</h4>", unsafe_allow_html=True)
-st.markdown("---")
+# Header
+with st.container():
+    col1, col2 = st.columns([0.1, 0.9])
+    with col1:
+        st.image("app/logo.png", width=50)
+    with col2:
+        st.markdown("<h4 class='app-title'>Finals Countdown</h4>", unsafe_allow_html=True)
+
+# Main Section: Title and Tagline
+with st.container():
+    st.markdown("""
+    <div class='title-wrapper'>
+        <h1 class='main-title' style='text-align: center; color: #1f4e79;'>🎓 Finals Countdown</h1>
+        <h4 class='tagline' style='text-align: center;'>Predict Your Score Before It Predicts Your Future</h4>
+    </div>
+    """, unsafe_allow_html=True)
+
 
 # --- Layout Columns ---
-col1, col2 = st.columns([2, 2])
+with st.container():
+    col1, col2 = st.columns([2, 2])
 
-with col1:
-    st.subheader("🧮 Numerical Inputs")
+    with col1:
+        st.subheader("🧮 Numerical Inputs")
 
-    study_hours_per_day = st.slider("Study Hours per Day", 0.0, 10.0, 2.0)
-    prep_days_before_exam = st.slider("Preparation Days Before Exam", 0, 60, 15)
-    attendance_percentage = st.slider("Attendance Percentage (%)", 0, 100, 80)
-    internal_marks = st.slider("Internal Marks (out of 50)", 0, 50, 30)
-    internal_marks_weight = st.slider("Internal Marks Weight", 0.0, 1.0, 0.2)
-    past_performance = st.slider("Past Performance (%)", 0, 100, 60)
-    doubt_time = st.slider("Doubt Resolution Time (hours/week)", 0, 20, 2)
+        study_hours_per_day = st.slider("Study Hours per Day", 0.0, 10.0, 2.0)
+        prep_days_before_exam = st.slider("Preparation Days Before Exam", 0, 60, 15)
+        attendance_percentage = st.slider("Attendance Percentage (%)", 0, 100, 80)
+        internal_marks = st.slider("Internal Marks (out of 50)", 0, 50, 30)
+        internal_marks_weight = st.slider("Internal Marks Weight", 0.0, 1.0, 0.2)
+        past_performance = st.slider("Past Performance (%)", 0, 100, 60)
+        doubt_time = st.slider("Doubt Resolution Time (hours/week)", 0, 20, 2)
 
-with col2:
-    st.subheader("📋 Categorical Inputs")
+    with col2:
+        st.subheader("📋 Categorical Inputs")
 
-    subject_difficulty = st.selectbox("Subject Difficulty", ["Easy", "Moderate", "Hard"])
-    study_material_source = st.selectbox("Study Material Source", ["Textbooks", "YouTube", "Coaching", "Notes"])
-    self_study_or_coaching = st.selectbox("Study Technique", ["Coaching", "Self-study", "Group-Study"])
-    motivation_level = st.selectbox("Motivation Level", ["Low", "Medium", "High"])
-    exam_anxiety_level = st.selectbox("Exam Anxiety Level", ["Low", "Medium", "High"])
+        subject_difficulty = st.selectbox("Subject Difficulty", ["Easy", "Moderate", "Hard"])
+        study_material_source = st.selectbox("Study Material Source", ["Textbooks", "YouTube", "Coaching", "Notes"])
+        self_study_or_coaching = st.selectbox("Study Technique", ["Coaching", "Self-study", "Group-Study"])
+        motivation_level = st.selectbox("Motivation Level", ["Low", "Medium", "High"])
+        exam_anxiety_level = st.selectbox("Exam Anxiety Level", ["Low", "Medium", "High"])
 
 # --- Mappings ---
 motivation_dict = {"Low": 0, "Medium": 1, "High": 2}
@@ -81,5 +98,5 @@ with center:
         st.progress(min(int(prediction), 100))
 
 # --- Footer ---
-st.markdown("---")
-st.markdown("<p style='text-align: center; color: gray;'>Predictions powered by coffee, panic, and machine learning. ❤️ </p>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center;'>Predictions powered by coffee, panic, and machine learning. ❤️ </p>", unsafe_allow_html=True)
+st.markdown("<footer class='footer'> © 2025 Sabin Neupane. All rights reserved. </footer>", unsafe_allow_html=True)
