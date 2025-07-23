@@ -2,6 +2,7 @@ import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
+import random
 
 # Load model and scaler
 model = joblib.load('app/model.pkl')
@@ -40,31 +41,93 @@ with st.container():
     col1, col2 = st.columns([2, 2])
 
     with col1:
-        st.subheader("🧮 Numerical Inputs")
+        st.subheader("🎯 Your Study Stats")
 
-        study_hours_per_day = st.slider("Study Hours per Day", 0.0, 10.0, 2.0)
-        prep_days_before_exam = st.slider("Preparation Days Before Exam", 0, 60, 15)
-        attendance_percentage = st.slider("Attendance Percentage (%)", 0, 100, 80)
-        internal_marks = st.slider("Internal Marks (out of 50)", 0, 50, 30)
-        internal_marks_weight = st.slider("Internal Marks Weight", 0.0, 1.0, 0.2)
-        past_performance = st.slider("Past Performance (%)", 0, 100, 60)
-        doubt_time = st.slider("Doubt Resolution Time (hours/week)", 0, 20, 2)
+        study_hours_per_day = st.slider("📘 How much do you *actually* study per day?", 0.0, 8.0, 2.0)
+        prep_days_before_exam = st.slider("📅 When do you usually start exam prep?", 0, 45, 15)
+        attendance_percentage = st.slider("🏫 Attendance (% because sometimes... life)", 0, 100, 80)
+        internal_marks = st.slider("📝 Internal Marks (out of 100)", 0, 100, 30)
+        internal_marks_weight = st.slider("⚖️ How much did you cheat?", 0.0, 1.0, 0.2)
+        past_performance = st.slider("📊 Your Past Academic Vibes (%)", 0, 100, 60)
+        doubt_time = st.slider("❓ Weekly Doubt Solving (hrs)", 0, 12, 2)
 
     with col2:
-        st.subheader("📋 Categorical Inputs")
+        st.subheader("😎 Study Personality")
 
-        subject_difficulty = st.selectbox("Subject Difficulty", ["Easy", "Moderate", "Hard"])
-        study_material_source = st.selectbox("Study Material Source", ["Textbooks", "YouTube", "Coaching", "Notes"])
-        self_study_or_coaching = st.selectbox("Study Technique", ["Coaching", "Self-study", "Group-Study"])
-        motivation_level = st.selectbox("Motivation Level", ["Low", "Medium", "High"])
-        exam_anxiety_level = st.selectbox("Exam Anxiety Level", ["Low", "Medium", "High"])
+        subject_difficulty = st.selectbox("📚 How scary is the subject?", [
+            "🛌 Feels like a nap",
+            "🙂 Manageable",
+            "😵 Brain-twister",
+            "😰 Panic-inducing",
+            "💀 I’ve accepted my fate"
+        ])
 
-# --- Mappings ---
-motivation_dict = {"Low": 0, "Medium": 1, "High": 2}
-anxiety_dict = {"Low": 0, "Medium": 1, "High": 2}
-difficulty_dict = {"Easy": 0, "Moderate": 1, "Hard": 2}
-study_dict = {"Textbooks": 2, "YouTube": 3, "Coaching": 0, "Notes": 1}
-self_study_dict = {"Coaching": 0, "Self-study": 2, "Group-Study": 1}
+        study_material_source = st.selectbox("📖 Where do you get your knowledge drops from?", [
+            "📚 Textbooks (old school)",
+            "📺 YouTube (bless the creators)",
+            "🏫 Coaching (parents’ choice)",
+            "🗒️ Notes (copied 5 mins before test)"
+        ])
+
+        self_study_or_coaching = st.selectbox("👨‍🏫 Your Study Vibe", [
+            "🏫 College (packaged learning)",
+            "🧘 Self-study (solo grind)",
+            "👨‍👩‍👧‍👦 Group Study (talk 90%, study 10%)"
+        ])
+
+        motivation_level = st.selectbox("🔥 Current Motivation Feels", [
+            "😩 I don't feel like it",
+            "🤷 I might... not sure",
+            "😐 I’ll just prepare (maybe)",
+            "😤 I *should* study",
+            "💪 I will study *seriously*"
+        ])
+
+        exam_anxiety_level = st.selectbox("💥 Exam Anxiety Check", [
+            "😭 I'm depressed (send help)",
+            "😬 Nervous breakdown incoming",
+            "😐 Meh, it's fine... maybe",
+            "😎 Chill like a cucumber",
+            "🧘 What’s an exam?"
+        ])
+
+# --- Vibe-Based Mappings ---
+motivation_dict = {
+    "😩 I don't feel like it": 1,
+    "🤷 I might... not sure": 2,
+    "😐 I’ll just prepare (maybe)": 3,
+    "😤 I *should* study": 4,
+    "💪 I will study *seriously*": 5
+}
+
+anxiety_dict = {
+    "😭 I'm depressed (send help)": 5,
+    "😬 Nervous breakdown incoming": 4,
+    "😐 Meh, it's fine... maybe": 3,
+    "😎 Chill like a cucumber": 2,
+    "🧘 What’s an exam?": 1
+}
+
+difficulty_dict = {
+    "🛌 Feels like a nap": 1,
+    "🙂 Manageable": 2,
+    "😵 Brain-twister": 3,
+    "😰 Panic-inducing": 4,
+    "💀 I’ve accepted my fate": 5
+}
+
+study_dict = {
+    "📚 Textbooks (old school)": 2,
+    "📺 YouTube (bless the creators)": 3,
+    "🏫 Coaching (parents’ choice)": 0,
+    "🗒️ Notes (copied 5 mins before test)": 1
+}
+
+self_study_dict = {
+    "🏫 College (packaged learning)": 0,
+    "🧘 Self-study (solo grind)": 2,
+    "👨‍👩‍👧‍👦 Group Study (talk 90%, study 10%)": 1
+}
 
 # --- Prepare Data ---
 input_dict = {
@@ -92,10 +155,43 @@ center = st.columns([1, 2, 1])[1]
 
 with center:
     st.subheader("📈 Final Marks Prediction")
+
     if st.button("🚀 Predict Final Exam Marks"):
         prediction = model.predict(input_df)[0]
         st.success(f"🎯 Your Predicted Marks: **{prediction:.2f} / 100**")
         st.progress(min(int(prediction), 100))
+
+        # 🎭 Fun titles based on prediction
+        if prediction >= 90:
+            title = "🧠 Undercover Genius"
+            msg = "You're cruising to glory! Just don’t get too cocky 😎"
+        elif prediction >= 75:
+            title = "🚀 Exam Warrior"
+            msg = "You're doing awesome! A little more push and you’re golden."
+        elif prediction >= 60:
+            title = "📚 Hustler-in-Progress"
+            msg = "Solid effort! Stay consistent and the top is yours."
+        elif prediction >= 40:
+            title = "🔄 Midnight Crammer"
+            msg = "You’ve got potential — time to fight distraction monsters!"
+        else:
+            title = "🛌 Dreamer"
+            msg = "It’s okay. Maybe start by opening the book? Baby steps. 📖✨"
+
+        # 🌟 Display character title
+        st.markdown(f"### {title}")
+        st.info(msg)
+
+        # 🧃 Random fun tip (optional)
+        tips = [
+            "🔥 Pro Tip: Use Pomodoro — 25 min grind, 5 min meme scroll.",
+            "😴 Don’t underestimate sleep. Brain = recharge battery.",
+            "🎧 Study music helps. Try lo-fi, not death metal.",
+            "📆 Make a plan. Even a bad one. Then improve it.",
+            "💬 Talk about doubts — even your friend who scores 40 might know this one."
+        ]
+        st.caption(f"🧃 {random.choice(tips)}")
+
 
 # --- Footer ---
 st.markdown("<p style='text-align: center;'>Predictions powered by coffee, panic, and machine learning. ❤️ </p>", unsafe_allow_html=True)
